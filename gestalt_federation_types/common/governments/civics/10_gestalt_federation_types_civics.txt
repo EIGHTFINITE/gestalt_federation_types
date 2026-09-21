@@ -1,0 +1,103 @@
+civic_melded_monopoly = {
+	modification = yes
+	potential = { authority = { value = auth_hive_mind } }
+	possible = {
+		OR = {
+			origin = {
+				OR = {
+					value = origin_common_ground
+					value = origin_hegemon
+					value = origin_scion
+					value = origin_imperial_vassal
+					value = origin_syncretic_evolution
+					value = origin_necrophage
+					value = origin_progenitor_hive
+					value = origin_wilderness
+					value = origin_tree_of_life
+					value = origin_fruitful
+					value = origin_here_be_dragons
+					value = origin_forever_cruise
+				}
+			}
+			civics = {
+				OR = {
+					value = civic_hive_empath
+					value = civic_hive_familiar_face
+					value = civic_hive_bodysnatcher
+					value = civic_hive_guided_sapience
+					value = civic_hive_beastmasters
+				}
+			}
+			traits = {
+				OR = {
+					value = trait_thrifty
+					value = trait_commercial_genius
+				}
+			}
+		}
+		civics = {
+			NOR = {
+				value = civic_hive_devouring_swarm
+				value = civic_hive_scorched_earth
+			}
+		}
+	}
+	modification = {
+		add = {
+			any_relation = {
+				has_commercial_pact = root
+			}
+		}
+		remove = {
+			always = yes
+		}
+	}
+	random_weight = { base = @civic_default_random_weight }
+	ai_weight = {
+		base = @ai_civic_default_base_weight
+	}
+	modifier = {
+		councilor_gestalt_growth_exp_gain = @gestalt_civic_node_xp_rate
+	}
+	swap_type = {
+		name = civic_melded_monopoly
+		trigger = {
+			is_nomadic = no
+			is_wilderness_empire = no
+		}
+		modifier = {
+			planet_traders_trade_produces_add = 0.5
+			planet_maintenance_drones_trade_produces_add = 0.5
+			planet_miners_trade_produces_add = 0.1
+			planet_farmers_trade_produces_add = 0.1
+			planet_artisans_trade_produces_add = 0.1
+			planet_metallurgists_trade_produces_add = 0.1
+		}
+	}
+	swap_type = {
+		name = civic_melded_monopoly
+		trigger = {
+			is_nomadic = yes
+			is_wilderness_empire = no
+		}
+		modifier = {
+			nomadic_contract_value_mult = 0.05
+			planet_traders_trade_produces_add = 0.5
+			planet_maintenance_drones_trade_produces_add = 0.5
+			planet_miners_trade_produces_add = 0.1
+			planet_farmers_trade_produces_add = 0.1
+			planet_artisans_trade_produces_add = 0.1
+			planet_metallurgists_trade_produces_add = 0.1
+		}
+	}
+	swap_type = {
+		name = civic_melded_monopoly
+		trigger = { is_wilderness_empire = yes }
+		modifier = {
+			planet_traders_trade_produces_add = 1
+			planet_miners_trade_produces_add = 0.25
+			planet_farmers_trade_produces_add = 0.25
+			planet_metallurgists_trade_produces_add = 0.25
+		}
+	}
+}
