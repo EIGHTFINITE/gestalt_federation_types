@@ -98,7 +98,7 @@ default_federation = {
 		set_federation_law = treaties_separate_yes
 		set_federation_law = commercial_pact_no
 		set_federation_law = research_pact_no
-		set_federation_law = allow_subjects_to_join_no
+		set_federation_law = allow_subjects_to_join_yes
 		set_federation_flag = enable_federation_cooldowns
 	}
 
@@ -307,24 +307,15 @@ trade_federation = {
 	}
 	allow = {
 		federation_check_for_subject_trigger = yes
-		if = {
-			limit = { host_has_dlc = "Megacorp" }
-			OR = {
-				is_megacorp = yes
-				has_valid_civic = civic_merchant_guilds
-				custom_tooltip = {
-					fail_text = mercantile_traditions_completed
-					has_active_tradition = tr_mercantile_federations_finish
-				}
-			}
-		}
-		else = {
-			OR = {
-				has_valid_civic = civic_corporate_dominion
-				custom_tooltip = {
-					fail_text = mercantile_traditions_completed
-					has_active_tradition = tr_mercantile_federations_finish
-				}
+		OR = {
+			is_megacorp = yes
+			has_valid_civic = civic_merchant_guilds
+			has_valid_civic = civic_corporate_dominion
+			has_valid_civic = civic_machine_obsessional_directive
+			has_valid_civic = civic_melded_monopoly
+			custom_tooltip = {
+				fail_text = mercantile_traditions_completed
+				has_active_tradition = tr_mercantile_federations_finish
 			}
 		}
 
@@ -390,7 +381,7 @@ trade_federation = {
 		set_federation_law = free_migration_no
 		set_federation_law = treaties_separate_yes
 		set_federation_law = research_pact_no
-		set_federation_law = allow_subjects_to_join_no
+		set_federation_law = allow_subjects_to_join_yes
 		set_federation_flag = enable_federation_cooldowns
 		every_member = {
 			limit = { NOT = { has_ethic = ethic_gestalt_consciousness } }
@@ -608,6 +599,9 @@ research_federation = {
 	allow = {
 		federation_check_for_subject_trigger = yes
 		OR = {
+			has_valid_civic = civic_individual_machine_predictive_analysis
+			has_valid_civic = civic_machine_predictive_analysis
+			has_valid_civic = civic_hive_natural_neural_network
 			custom_tooltip = {
 				fail_text = civic_tooltip_materialist
 				is_materialist = yes
@@ -680,7 +674,7 @@ research_federation = {
 		set_federation_law = free_migration_no
 		set_federation_law = treaties_separate_yes
 		set_federation_law = commercial_pact_no
-		set_federation_law = allow_subjects_to_join_no
+		set_federation_law = allow_subjects_to_join_yes
 		set_federation_flag = enable_federation_cooldowns
 	}
 	ai_weight = {
@@ -889,6 +883,9 @@ military_federation = {
 	allow = {
 		federation_check_for_subject_trigger = yes
 		OR = {
+			has_valid_civic = civic_individual_machine_warbots
+			has_valid_civic = civic_machine_warbots
+			has_valid_civic = civic_hive_strength_of_legions
 			custom_tooltip = {
 				fail_text = civic_tooltip_militarist
 				is_militarist = yes
@@ -957,7 +954,7 @@ military_federation = {
 		set_federation_law = treaties_separate_yes
 		set_federation_law = commercial_pact_no
 		set_federation_law = research_pact_no
-		set_federation_law = allow_subjects_to_join_no
+		set_federation_law = allow_subjects_to_join_yes
 		set_federation_flag = enable_federation_cooldowns
 	}
 	ai_weight = {
@@ -1166,7 +1163,12 @@ hegemony_federation = {
 	allow = {
 		federation_check_for_subject_trigger = yes
 		OR = {
-			has_civic = civic_machine_servitor
+			has_origin = origin_hegemon
+			has_valid_civic = civic_machine_servitor
+			AND = {
+				is_hive_empire = yes
+				has_origin = origin_necrophage
+			}
 			custom_tooltip = {
 				fail_text = civic_tooltip_authoritarian
 				is_authoritarian = yes
@@ -1440,6 +1442,8 @@ spiritualist_federation = {
 	allow = {
 		federation_check_for_subject_trigger = yes
 		OR = {
+			has_valid_civic = civic_machine_ascensionists
+			has_valid_civic = civic_hive_ascensionists
 			custom_tooltip = {
 				fail_text = civic_tooltip_spiritualist
 				is_spiritualist = yes
@@ -1512,7 +1516,7 @@ spiritualist_federation = {
 		set_federation_law = treaties_separate_yes
 		set_federation_law = commercial_pact_no
 		set_federation_law = research_pact_no
-		set_federation_law = allow_subjects_to_join_no
+		set_federation_law = allow_subjects_to_join_yes
 		set_federation_flag = enable_federation_cooldowns
 	}
 	ai_weight = {
