@@ -4,7 +4,11 @@ ap_universal_transactions = {
 		NOT = {
 			has_ascension_perk = ap_universal_transactions
 		}
-		is_megacorp = yes
+		OR = {
+			is_gestalt = no
+			has_valid_civic = civic_machine_obsessional_directive
+			has_valid_civic = civic_melded_monopoly
+		}
 		is_criminal_syndicate = no
 	}
 
