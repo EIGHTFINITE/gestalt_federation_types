@@ -3228,6 +3228,11 @@ action_invite_to_federation = {
 			NOT = {
 				has_origin = origin_endbringers
 			}
+			from = {
+				NOT = {
+					has_origin = origin_endbringers
+				}
+			}
 		}
 	}
 
@@ -4140,6 +4145,7 @@ action_demand_subjugation = {
 				NOR = {
 					has_menace_perk = menp_intimidation
 					has_valid_civic = civic_feudal_realm
+					has_valid_civic = civic_franchising
 				}
 			}
 			# Requirements:
