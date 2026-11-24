@@ -2,39 +2,6 @@ civic_melded_monopoly = {
 	modification = yes
 	potential = { authority = { value = auth_hive_mind } }
 	possible = {
-		OR = {
-			origin = {
-				OR = {
-					value = origin_common_ground
-					value = origin_hegemon
-					value = origin_scion
-					value = origin_imperial_vassal
-					value = origin_syncretic_evolution
-					value = origin_necrophage
-					value = origin_progenitor_hive
-					value = origin_wilderness
-					value = origin_tree_of_life
-					value = origin_fruitful
-					value = origin_here_be_dragons
-					value = origin_forever_cruise
-				}
-			}
-			civics = {
-				OR = {
-					value = civic_hive_empath
-					value = civic_hive_familiar_face
-					value = civic_hive_bodysnatcher
-					value = civic_hive_guided_sapience
-					value = civic_hive_beastmasters
-				}
-			}
-			traits = {
-				OR = {
-					value = trait_thrifty
-					value = trait_commercial_genius
-				}
-			}
-		}
 		civics = {
 			NOR = {
 				value = civic_hive_devouring_swarm
