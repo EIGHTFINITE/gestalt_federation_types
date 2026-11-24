@@ -21,6 +21,7 @@
 # possible, trigger, root is actor, from is recipient, prev is either requester (if action is done in response to an ask_xxx counterpart) or same as root, decides if the action is still possible
 # proposable, trigger, root is actor, from is recipient, decides if the action is proposable
 # ai_acceptance: weight field where you can define AI reasons to accept or reject the proposal. root is recipient, from is actor. Does not overwrite hardcoded reasons, and only using add and subtract is recommended, since multiplication won't affect reasons outside the ai_acceptance field
+# action_stack: defines a stack that reuses the favor decrease/increase UI to instead decrease/increase a stacks counter that can then be used by the action
 
 
 @cb_subjugation_length = 360
@@ -525,6 +526,15 @@ action_offer_peace = {
 			}
 		}
 	}
+
+	ai_acceptance = {
+		modifier = {
+			add = 50
+			from = { exists = ideology }
+			ideology? = { is_same_value = root.from.ideology }
+			desc = triggered_opinion_ideology_match
+		}
+	}
 }
 
 # Dummy action for opening the war overview from the diplomacy view
@@ -823,6 +833,188 @@ action_end_rivalry = {
 			check_casus_belli_valid = {
 				target = from
 				type = cb_humiliation
+			}
+		}
+	}
+}
+
+# Declare Ideological Rival
+action_declare_ideological_rival = {
+	icon = "GFX_diplomacy_status_ideological_rival"
+	auto_accepted = yes
+	requires_actor_independence = no
+	requires_recipient_independence = no
+	should_show_auto_accept_message_recipient = yes
+	action_type = aggressive
+
+	potential = {
+		hidden_trigger = {
+			exists = ideology
+
+			can_be_ideological_rival = {
+				TARGET = FROM
+			}
+		}
+	}
+
+	possible = {
+		custom_tooltip = {
+			fail_text = "requires_actor_not_fanatic_purifiers"
+			OR = {
+				is_same_species = from
+				NOT = { has_valid_civic = civic_fanatic_purifiers }
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_devouring_swarm"
+			NOT = { has_valid_civic = civic_hive_devouring_swarm }
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_machine_terminator"
+			OR = {
+				is_same_species = from
+				NOT = { has_civic = civic_machine_terminator }
+				AND = {
+					has_civic = civic_machine_terminator
+					from = {
+						OR = {
+							has_country_flag = synthetic_empire
+							is_machine_empire = yes
+							is_individual_machine = yes
+						}
+					}
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_machine_assimilator"
+			NOT = { has_valid_civic = civic_machine_assimilator }
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_scorched_earth"
+			OR = {
+				is_genocidal_infernal = no
+				from = { is_infernal_empire = yes }
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_inward_perfection"
+			NOT = { has_valid_civic = civic_inwards_perfection }
+		}
+		custom_tooltip = {
+			fail_text = "requires_terrible_opinion_or_supremacist"
+			OR = {
+				opinion_level = { who = from level <= terrible }
+				is_harming_relations_with = from
+				from = { is_at_war_with = prev }
+				OR = {
+					has_policy_flag = "diplo_stance_supremacist"
+					from = { has_policy_flag = "diplo_stance_supremacist" }
+					is_fallen_empire = yes
+					from = { is_fallen_empire = yes }
+					has_policy_flag = "diplo_stance_animosity"
+					from = { has_policy_flag = "diplo_stance_animosity" }
+				}
+				from = { is_rival = prev }
+				from = { is_ideology_rival = prev }
+
+				# We can be rivals with the Mirror Empire no matter relations' level
+				from = { is_country_type = mirrored_country }
+			}
+		}
+		custom_tooltip = {
+			fail_text = "the_fe_is_busy_with_synth_queen"
+			OR = {
+				from = { is_fallen_empire = no }
+				AND = {
+					NOT = { has_global_flag = synth_queen_happened }
+					from = {
+						is_fallen_empire = yes
+					}
+				}
+			}
+		}
+
+		custom_tooltip = {
+			fail_text = this_must_be_ideology_custodian
+			ideology? = {
+				is_ideology_custodian = prev
+			}
+		}
+
+		custom_tooltip = {
+			fail_text = from_must_be_ideology_custodian
+			from = {
+				exists = ideology
+				ideology? = {
+					is_ideology_custodian = prev
+					NOT = {
+						is_same_value = root.ideology
+					}
+				}
+			}
+		}
+	}
+
+	should_ai_propose = {
+		weight = 0
+
+		# Escalate an existing rivalry with the custodian of another ideology.
+		modifier = {
+			add = 1
+			is_rival = from
+			from = {
+				is_subject = no
+			}
+		}
+
+		# Answer an ideological rivalry declared on us.
+		modifier = {
+			add = 1
+			from = {
+				is_ideology_rival = root
+				is_subject = no
+			}
+		}
+	}
+}
+
+# End a ideological rivalry, 10 year cooldown on new ideological rivalries
+action_end_ideological_rivalry = {
+	icon = "GFX_diplomacy_status_ideological_rival"
+	auto_accepted = yes
+	requires_actor_independence = no
+	requires_recipient_independence = no
+	should_show_auto_accept_message_recipient = yes
+	should_notify_all_communications = yes
+	action_type = positive
+
+	potential = {
+		hidden_trigger = {
+			is_fallen_empire_machine = no
+			from = { is_fallen_empire_machine = no }
+		}
+	}
+
+	should_ai_propose = {
+		weight = 0
+
+		# End the ideological rivalry along with the regular one, unless we are answering one declared on us.
+		modifier = {
+			add = 1
+			NOR = {
+				is_rival = from
+				from = {
+					is_ideology_rival = root
+				}
+			}
+		}
+
+		# Subject empires are not kept as ideological rivals.
+		modifier = {
+			add = 1
+			from = {
+				is_subject = yes
 			}
 		}
 	}
@@ -2829,6 +3021,28 @@ action_form_migration_pact = {
 #			FROM = { is_nomadic = no }
 #		}
 	}
+
+	ai_acceptance = {
+		modifier = {
+			add = 100
+			root = { is_open_stars_sovereignty_empire = yes }
+			desc = civic_open_stars_sovereignty
+		}
+		modifier = {
+			add = 50
+			any_pop_faction = {
+				has_pop_faction_flag = fanatic_faction_demand_migration_unlocked
+				ideology? = { is_ideology_custodian = root.from }
+			}
+			desc = triggered_opinion_ideology_willing_to_join
+		}
+		modifier = {
+			add = 20
+			from = { exists = ideology }
+			ideology? = { is_same_value = root.from.ideology }
+			desc = triggered_opinion_ideology_match
+		}
+	}
 }
 
 # Break an existing migration pact, harms relations.
@@ -3440,6 +3654,33 @@ action_invite_to_federation = {
 			}
 		}
 	}
+
+	ai_acceptance = {
+		modifier = {
+			add = 50
+			any_pop_faction = {
+				has_pop_faction_flag = fanatic_faction_demand_federation_unlocked
+				ideology? = { is_ideology_custodian = root.from }
+			}
+			desc = triggered_opinion_ideology_willing_to_join
+		}
+		modifier = {
+			add = 20
+			from = { exists = ideology }
+			ideology? = { is_same_value = root.from.ideology }
+			desc = triggered_opinion_ideology_match
+		}
+		modifier = {
+			subtract = 1000
+			exists = from.federation.ideology
+			NOT = { has_ascension_perk = ap_force_of_will }
+			foreign_ideology_affinity = {
+				ideology = from.federation.ideology
+				value < -3
+			}
+			desc = AI_IDEOLOGY_AFFINITY_POOR
+		}
+	}
 }
 
 # Vote for federation law
@@ -3731,6 +3972,37 @@ action_ask_to_join_federation = {
 					from = from
 				}
 			}
+		}
+	}
+
+	ai_acceptance = {
+		modifier = {
+			add = 50
+			from = {
+				any_pop_faction = {
+					has_pop_faction_flag = fanatic_faction_demand_federation_unlocked
+					ideology? = { is_ideology_custodian = root }
+				}
+			}
+			desc = triggered_opinion_ideology_willing_to_join
+		}
+		modifier = {
+			add = 20
+			from = { exists = ideology }
+			ideology? = { is_same_value = root.from.ideology }
+			desc = triggered_opinion_ideology_match
+		}
+		modifier = {
+			subtract = 1000
+			exists = federation.ideology
+			from = {
+				NOT = { has_ascension_perk = ap_force_of_will }
+				foreign_ideology_affinity = {
+					ideology = root.federation.ideology
+					value < -3
+				}
+			}
+			desc = AI_IDEOLOGY_AFFINITY_POOR
 		}
 	}
 }
@@ -4212,7 +4484,7 @@ action_demand_subjugation = {
 			add = -50
 			root = {
 				is_militarist = yes
-				has_faction = imperialist
+				has_faction_with_ethic = ethic_militarist
 			}
 			desc = TOO_IMPERIAL
 		}
@@ -4573,7 +4845,7 @@ action_ask_to_become_subjugated = {
 			add = -100
 			root = {
 				is_militarist = yes
-				has_faction = imperialist
+				has_faction_with_ethic = ethic_militarist
 			}
 			desc = TOO_IMPERIAL
 		}
@@ -4798,6 +5070,164 @@ action_remove_imperial_council_member = {
 					who = root
 					modifier = opinion_emperor_removed_council_seat
 				}
+			}
+		}
+	}
+}
+
+action_sow_peace = {
+	icon = "GFX_sow_peace"
+	auto_accepted = yes
+	requires_recipient_independence = no
+	requires_actor_independence = no
+	should_notify_all_communications = no
+	action_type = negative
+
+	potential = {
+		hidden_trigger = {
+			OR = {
+				is_social_concord_empire = yes
+				has_country_flag = has_sow_peace_access
+			}
+		}
+	}
+
+	possible = {
+		custom_tooltip = {
+			fail_text = "requires_recipient_attacker"
+			from = {
+				is_at_war = yes
+				any_war = {
+					any_attacker = { is_same_value = prevprev }
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_neutral_opinion_or_sow_peace_intel"
+			OR = {
+				opinion_level = {
+					who = from
+					level >= neutral
+				}
+				intel = {
+					who = from
+					value >= value:sow_peace_next_intel_requirement
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = "max_sow_peace_counter_reached"
+			from = {
+				check_variable_arithmetic = {
+					which = value:new_sow_peace_stacks_counter
+					value < @sow_peace_max_stacks_counter
+				}
+			}
+		}
+	}
+
+	action_stack = {
+		max_counter = @sow_peace_max_stacks_counter
+		tooltip = action_sow_peace_stack_tt
+		possible = {
+			if = {
+				limit = {
+					from = {
+						check_variable_arithmetic = {
+							which = value:new_sow_peace_stacks_counter
+							value > @sow_peace_max_stacks_counter
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = "max_sow_peace_counter_reached"
+					always = no
+				}
+			}
+			else = {
+				OR = {
+					opinion_level = {
+						who = from
+						level >= neutral
+					}
+					intel = {
+						who = from
+						value >= value:sow_peace_intel_requirement
+					}
+				}
+			}
+		}
+		resources = {
+			category = diplomacy
+			cost = {
+				influence = @sow_peace_stack_influence_cost
+				mult = local_stacks_counter
+			}
+		}
+	}
+
+	should_ai_propose = {
+		weight = 1
+		modifier = {
+			mult = 0
+			root = { is_social_concord_empire = no }
+		}
+		modifier = {
+			mult = 0
+			OR = {
+				root = { is_galactic_community_member = no }
+				from = { is_galactic_community_member = no }
+			}
+		}
+		modifier = {
+			mult = 0
+			root = {
+				NOT = {
+					resource_stockpile_compare = {
+						resource = influence
+						value >= @sow_peace_ai_min_stockpile
+					}
+				}
+			}
+		}
+	}
+
+	on_accept = {
+		change_variable = {
+			which = sow_peace_applied_counter@from
+			value = local_stacks_counter
+		}
+		from = {
+			add_opinion_modifier = {
+				who = root
+				modifier = sow_peace_stack_opinion_modifier
+				mult = local_stacks_counter
+			}
+
+			clear_sow_peace_modifiers = yes
+			change_variable = {
+				which = sow_peace_stacks
+				value = local_stacks_counter
+			}
+			if = {
+				limit = { check_variable = { which = sow_peace_stacks value = 1 } }
+				add_modifier = { modifier = sow_peace_modifier_1 }
+			}
+			else_if = {
+				limit = { check_variable = { which = sow_peace_stacks value = 2 } }
+				add_modifier = { modifier = sow_peace_modifier_2 }
+			}
+			else_if = {
+				limit = { check_variable = { which = sow_peace_stacks value = 3 } }
+				add_modifier = { modifier = sow_peace_modifier_3 }
+			}
+			else_if = {
+				limit = { check_variable = { which = sow_peace_stacks value = 4 } }
+				add_modifier = { modifier = sow_peace_modifier_4 }
+			}
+			else_if = {
+				limit = { check_variable = { which = sow_peace_stacks value >= 5 } }
+				add_modifier = { modifier = sow_peace_modifier_5 }
 			}
 		}
 	}
@@ -6551,6 +6981,282 @@ action_open_pre_ftl_homeworld = {
 			from = {
 				is_country_type = primitive
 			}
+		}
+	}
+}
+
+# Asks another empire to adopt your Ideology.
+action_invite_adopt_ideology = {
+	icon = "GFX_diplomacy_status_ideology"
+	should_notify_all_communications = no
+	diplo_view_acceptance_icon = yes
+	requires_actor_independence = no
+	requires_recipient_independence = no
+	should_remove_response_message_when_not_possible = yes
+	action_type = neutral
+	AI_acceptance_base_value = -50
+
+	potential = {
+		hidden_trigger = {
+			is_country_type = default
+			exists = ideology
+			from = {
+				is_country_type = default
+				OR = {
+					NOT = { exists = ideology }
+					ideology = { NOT = { is_same_value = root.ideology } }
+				}
+			}
+		}
+	}
+
+	possible = {
+		custom_tooltip = {
+			fail_text = "requires_actor_not_fanatic_purifiers"
+			OR = {
+				is_same_species = from
+				NOT = { has_valid_civic = civic_fanatic_purifiers	}
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_recipient_not_fanatic_purifiers"
+			OR = {
+				is_same_species = from
+				from = { NOT = { has_valid_civic = civic_fanatic_purifiers } }
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_devouring_swarm"
+			NOT = { has_valid_civic = civic_hive_devouring_swarm	}
+		}
+		custom_tooltip = {
+			fail_text = "requires_recipient_not_devouring_swarm"
+			from = { NOT = { has_valid_civic = civic_hive_devouring_swarm } }
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_machine_terminator"
+			OR = {
+				is_same_species = from
+				NOT = { has_civic = civic_machine_terminator }
+				AND = {
+					has_civic = civic_machine_terminator
+					from = {
+						OR = {
+							has_country_flag = synthetic_empire
+							is_machine_empire = yes
+							is_individual_machine = yes
+						}
+					}
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_recipient_not_machine_terminator"
+			OR = {
+				is_same_species = from
+				from = { NOT = { has_civic = civic_machine_terminator } }
+				AND = {
+					from = { has_civic = civic_machine_terminator }
+					OR = {
+						has_country_flag = synthetic_empire
+						is_machine_empire = yes
+						is_individual_machine = yes
+					}
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_actor_not_scorched_earth"
+			OR = {
+				is_genocidal_infernal = no
+				from = { is_infernal_empire = yes }
+			}
+		}
+		custom_tooltip = {
+			fail_text = "requires_recipient_not_scorched_earth"
+			OR = {
+				is_infernal_empire = yes
+				from = { is_genocidal_infernal = no }
+			}
+		}
+		# Requirements:
+		# - 10 Trust OR Neutral Opinion
+		# - An Embassy OR Improving Relations.
+		custom_tooltip = {
+			fail_text = requires_10_trust_or_neutral
+			OR = {
+				opinion_level = {
+					who = from
+					level >= neutral
+				}
+				from = {
+					trust = {
+						who = root
+						value >= 10
+					}
+				}
+				AND = {
+					has_valid_civic = civic_hive_familiar_face
+					from = {
+						trust = {
+							who = root
+							value >= 5
+						}
+					}
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_embassy_or_improving_relations
+			OR = {
+				is_improving_relations_with = from
+				has_embassy = from
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_ideology_not_imposed
+			from = {
+				OR = {
+					NOT = { exists = ideology }
+					NOT = { has_country_flag = ideology_cannot_abandon_imposed }
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_not_abandoning_ideology
+			from = {
+				OR = {
+					NOT = { exists = ideology }
+					NOT = { has_country_flag = abandoning_ideology }
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_not_recently_abandoned
+			from = {
+				OR = {
+					NOT = { exists = ideology }
+					NOT = { has_country_flag = recently_abandon_ideology }
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_not_recently_adopted
+			from = {
+				NOT = { has_country_flag = recently_adopted_ideology }
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_not_adopting_ideology
+			from = {
+				NOT = { has_special_project = ADOPT_IDEOLOGY_SPECIAL_PROJECT }
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_not_in_ideological_revolt
+			from = {
+				NOT = {
+					any_situation = {
+						is_situation_type = situation_ideological_revolt
+					}
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_not_homicidal_for_peaceful_ideology
+			OR = {
+				from = { is_homicidal = no }
+				ideology? = {
+					is_pacifist = no
+					is_xenophile = no
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_no_conviction_perk
+			from = {
+				OR = {
+					NOT = { exists = ideology }
+					NOT = { has_country_flag = cant_abandon_ideology_forceofwill }
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_not_ideological_ban
+			from = {
+				NOT = {
+					any_agreement = {
+						target = { is_same_value = from }
+						has_term_value = {
+							term = subject_ideology
+							value = subject_ideological_ban
+						}
+					}
+				}
+			}
+		}
+		custom_tooltip = {
+			fail_text = requires_recipient_ideology_matches_overlord
+			from = {
+				OR = {
+					NOT = {
+						any_agreement = {
+							target = { is_same_value = from }
+							has_term_value = {
+								term = subject_ideology
+								value = subject_unified_ideology
+							}
+						}
+					}
+					overlord? = { ideology? = { is_same_value = root.ideology } }
+				}
+			}
+		}
+	}
+
+	should_ai_propose = {
+		weight = 0
+
+		# Only invite empires that are drawn to our ideology.
+		modifier = {
+			add = 1
+			from = {
+				foreign_ideology_affinity = {
+					ideology = root.ideology
+					value > 0
+				}
+			}
+		}
+	}
+
+	on_accept = {
+		hidden_effect = {
+			root.ideology = { save_event_target_as = ideology_target }
+			set_country_flag = invited_to_our_ideology_@from
+			from = {
+				set_country_flag = adopting_ideology_from_invitation_@event_target:ideology_target
+				if = {
+					limit = {
+						exists = event_target:ideology_target
+						NOT = { has_country_flag = imposed_ideology_@event_target:ideology_target }
+					}
+					set_country_flag = imposed_ideology_@event_target:ideology_target
+					add_modifier = {
+						modifier = imposed_ideology_not_accomplished
+					}
+					country_event = {
+						id = forceofwill.1040
+						scopes = { from = event_target:ideology_target }
+					}
+				}
+			}
+		}
+	}
+
+	on_decline = {
+		if = {
+			limit = { is_pacifist = yes }
+			set_country_flag = refused_adopt_ideology_from_@from
 		}
 	}
 }
