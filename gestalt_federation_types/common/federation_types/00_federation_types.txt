@@ -608,6 +608,40 @@ research_federation = {
 				fail_text = civic_tooltip_materialist
 				is_materialist = yes
 			}
+			AND = {
+				is_gestalt = yes
+				custom_tooltip = {
+					fail_text = HAS_CREATED_IDEOLOGY
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						NOR = {
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_HIVE
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_MACHINE
+							has_country_flag = cannot_codify_ideology
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = must_be_ideology_custodian
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						ideology = {
+							is_ideology_custodian = root
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = HAS_IDEOLOGY_MATERIALIST
+					AND = {
+						exists = ideology
+						ideology = {
+							is_materialist = yes
+						}
+					}
+				}
+			}
 			is_machine_empire = yes
 			custom_tooltip = {
 				fail_text = discovery_traditions_completed
@@ -893,6 +927,40 @@ military_federation = {
 				fail_text = civic_tooltip_militarist
 				is_militarist = yes
 			}
+			AND = {
+				is_gestalt = yes
+				custom_tooltip = {
+					fail_text = HAS_CREATED_IDEOLOGY
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						NOR = {
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_HIVE
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_MACHINE
+							has_country_flag = cannot_codify_ideology
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = must_be_ideology_custodian
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						ideology = {
+							is_ideology_custodian = root
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = HAS_IDEOLOGY_MILITARIST
+					AND = {
+						exists = ideology
+						ideology = {
+							is_militarist = yes
+						}
+					}
+				}
+			}
 			custom_tooltip = {
 				fail_text = unyielding_traditions_completed
 				has_active_tradition = tr_unyielding_federations_finish
@@ -1177,6 +1245,40 @@ hegemony_federation = {
 				fail_text = civic_tooltip_authoritarian
 				is_authoritarian = yes
 			}
+			AND = {
+				is_gestalt = yes
+				custom_tooltip = {
+					fail_text = HAS_CREATED_IDEOLOGY
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						NOR = {
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_HIVE
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_MACHINE
+							has_country_flag = cannot_codify_ideology
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = must_be_ideology_custodian
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						ideology = {
+							is_ideology_custodian = root
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = HAS_IDEOLOGY_AUTHORITARIAN
+					AND = {
+						exists = ideology
+						ideology = {
+							is_authoritarian = yes
+						}
+					}
+				}
+			}
 			custom_tooltip = {
 				fail_text = domination_traditions_completed
 				OR ={
@@ -1452,6 +1554,40 @@ spiritualist_federation = {
 			custom_tooltip = {
 				fail_text = civic_tooltip_spiritualist
 				is_spiritualist = yes
+			}
+			AND = {
+				is_gestalt = yes
+				custom_tooltip = {
+					fail_text = HAS_CREATED_IDEOLOGY
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						NOR = {
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_HIVE
+							has_special_project = GESTALT_IDEOLOGY_PROJECT_MACHINE
+							has_country_flag = cannot_codify_ideology
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = must_be_ideology_custodian
+					AND = {
+						has_country_flag = ideology_initiated
+						exists = ideology
+						ideology = {
+							is_ideology_custodian = root
+						}
+					}
+				}
+				custom_tooltip = {
+					fail_text = HAS_IDEOLOGY_SPIRITUALIST
+					AND = {
+						exists = ideology
+						ideology = {
+							is_spiritualist = yes
+						}
+					}
+				}
 			}
 			custom_tooltip = {
 				fail_text = harmony_traditions_completed
