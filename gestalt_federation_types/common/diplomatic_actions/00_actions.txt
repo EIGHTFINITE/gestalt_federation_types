@@ -7266,6 +7266,22 @@ action_invite_adopt_ideology = {
 					}
 				}
 			}
+			create_message = {
+				type = MESSAGE_IDEOLOGY_INVITATION_ACCEPTED
+				localization = MESSAGE_IDEOLOGY_INVITATION_ACCEPTED_ACTOR_DESC
+				days = 30
+				onclick = ideologies
+				variable = {
+					type = name
+					localization = COUNTRY
+					scope = from
+				}
+				variable = {
+					type = name
+					localization = IDEOLOGY
+					scope = event_target:ideology_target
+				}
+			}
 		}
 	}
 
